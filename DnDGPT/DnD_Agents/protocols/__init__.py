@@ -13,10 +13,13 @@ NARRATOR_ADDRESS = ""
 """all uagent models have a string parameter
     but will check speed with querying the database or sendding whole thing 
 """
-class Response(Model):
-    response: str
+class GuidedResponses(Model):
+    guided_response: str
 
-class Describing_Narration(Model):
+class FactCheckedResponses(Model):
+    fact_resp: str
+
+class Described_Narrations(Model):
     id: int  
     # scene: str  # converts the narration to a scene for better visualization
 
@@ -35,31 +38,97 @@ class Scenes_to_Sound(Model):
     id: int  
     # sound: str  #This give SFX to the scene for better immersion develop if time permits
 
+class Input_Action(Model):
+    id: int  
+    # action: str  #This is the Actions that occur in the scene
     
-
 PROTOCOL_VERSION="6.9"
+
+
+
+
+
+
+
+"""
+GUIDER Protocols for DnDGPT
+Information:
+It Sends the Reponses to the Fact Checker to double Check the Facts. 
+Guider is based on RAG, checking the documents stored interally and also facts from the Fact Checker.
+Also has database Access for consistency. see how ctx works also
+"""
+
+guide_protocol = Protocol(name="guide_proto", version=PROTOCOL_VERSION) # 
+
+"""
+Guide --> Fact Checker
+
+This Protocol Receieves Input Action From Characters and Guides the Actions as The Environment
+Sends the Guided Actions using Map to Fact Checker to Double Check the Facts
+"""
+guide_protocol.on_message(model=Input_Action, replies=GuidedResponses)
+async def guide_actions(ctx: Context, sender: str, msg: Input_Action):
+    """
+    Guide the actions 
+    """
+    try:
+        #create a DM quest guide and the check actions the guide and also update quest guide if necessary
+        guided_actions = "This is response of environment to inputed actions"
+
+        
+        #store action in ctx or database, see which works easier for context
+
+        await ctx.send(MASTER_ADDRESS, GuidedResponses(guided_response=guided_actions)) #here send to describer scenario not back to sender
+
+    except Exception as e:
+        await ctx.send(sender, Error_Messages(error=(f"I am unable to guide the actions at this time due to"
+                                            "{e}. Please try again later.")))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 """
 Fact checker Protocols for DnDGPT
 """
 factGiver_protocol = Protocol(name="factGiver_proto", version=PROTOCOL_VERSION) #for talking use message, for LLM stuff use on_query
 
-@factGiver_protocol.on_message(model=Response, replies=Determning_Facts)
-async def describe_narration(ctx: Context, sender: str, msg: Describing_Narration):
+
+@factGiver_protocol.on_message(model=GuidedResponses, replies=FactCheckedResponses)
+async def describe_narration(ctx: Context, sender: str, msg: Described_Narrations):
     """
     Describe the Narration 
     """
     try:
         #send response to LLM and get facts from guide
-        fact = "This is a fact from the Dungeon Master"
+        fact_resp = "This is a fact from the Dungeon Master"
         
         #store fact in ctx or database, see which works easier for context
 
-        await ctx.send(NARRATOR_ADDRESS, Determning_Facts(fact=fact)) #here send to describer scenario not back to sender
+        await ctx.send(NARRATOR_ADDRESS, FactCheckedResponses(fact_resp=fact_resp)) #here send to describer scenario not back to sender
 
     except Exception as e:
         await ctx.send(sender, Error_Messages(error=(f"I am unable to describe the narration at this time due to"
                                             "{e}. Please try again later.")))
+
+
+
+
+
+
+
+
+
+
 
 """
 Narrator Protocols for DnDGPT
@@ -86,14 +155,18 @@ async def narrate_facts(ctx: Context, sender: str, msg: Determning_Facts):
 
 
 
+
+
+
+
 """
 Scenario Protocols for DnDGPT
 """
 
-
 scenario_protocol = Protocol(name="scenario_proto", version=PROTOCOL_VERSION) #for talking use message for interation, for LLM stuff use on_query
 
-@scenario_protocol.on_message(model=Narrating_Facts, replies=Describing_Narration)
+
+@scenario_protocol.on_message(model=Narrating_Facts, replies=Described_Narrations)
 async def narrate_facts(ctx: Context, sender: str, msg: Narrating_Facts):
     """
     Describe the Narration 
@@ -105,11 +178,41 @@ async def narrate_facts(ctx: Context, sender: str, msg: Narrating_Facts):
         #store scenario in ctx or database, see which works easier for context
 
         ctx.logger.info(f"Sending Descriptive Scene to Master")
-        await ctx.send(MASTER_ADDRESS, Describing_Narration(scene=scene)) #here send to describer scenario not back to sender
+        await ctx.send(GUIDE_ADDRESS, Described_Narrations(scene=scene)) #here send to describer differetn elements in the scene
+            # that may be interactive. Create a description for them using guide and fact checker
 
     except Exception as e:
         await ctx.send(sender, Error_Messages(error=(f"I am unable to narrate the facts at this time due to"
                                             "{e}. Please try again later.")))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
