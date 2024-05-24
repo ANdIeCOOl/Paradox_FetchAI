@@ -1,7 +1,7 @@
 from uagents import Model #keep these as verbs like doing stuff
 from uagents import Protocol, Context, Bureau
 import asyncio
-from models import Narrations, Facts, Scenes, Sounds, Errors
+from .models import Narrations, Facts, Scenes, Sounds, Errors
 
 """AGENT ADDRESSES"""
 SCENARIO_ADDRESS = "agent1q03cseuyk38flt9gmzydteahvf8c5afl4s8rxsse8p9k9lh335evcs6pm3z"
@@ -124,7 +124,7 @@ async def narrate_facts(ctx: Context, sender: str, msg: Narrating_Facts):
 """Take input from user first to create a scene"""
 
 
-DungeonMaster = Bureau()
+DungeonMaster = Bureau() # DM Bureau communicates with characters Bureau
 # DungeonMaster.add_agents(Narrator)
 # DungeonMaster.add_agents(ActionAgent)
 # DungeonMaster.add_agents(CharacterAgent)
