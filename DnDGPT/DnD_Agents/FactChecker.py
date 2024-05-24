@@ -11,8 +11,8 @@ fact_checker = Agent(name="fact_checker",
 print(f"FactChecker address: {fact_checker.address}")
 fund_agent_if_low(fact_checker.wallet.address())
 
-from protocols import fact_checker_protocol
-fact_checker.include(fact_checker_protocol)
+from protocols import factGiver_protocol
+fact_checker.include(factGiver_protocol)
 
 if __name__ == "__main__":
     fact_checker.run()

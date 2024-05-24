@@ -1,6 +1,6 @@
 from uagents import Agent, Context, Protocol, Model
 from uagents.setup import fund_agent_if_low
-from protocols import Error_Messages,GuidedResponses,FactCheckedResponses
+from protocols import Error_Messages,GuidedResponses,FactCheckedResponses,Input_Action
 
 guide= Agent(name="guide", 
              seed="Guide", 

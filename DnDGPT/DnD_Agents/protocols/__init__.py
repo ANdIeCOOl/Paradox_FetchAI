@@ -5,10 +5,9 @@ from .models import Narrations, Facts, Scenes, Sounds, Errors
 
 """AGENT ADDRESSES"""
 SCENARIO_ADDRESS = "agent1q03cseuyk38flt9gmzydteahvf8c5afl4s8rxsse8p9k9lh335evcs6pm3z"
-FACT_GIVER_ADDRESS = ""
-GUIDE_ADDRESS = ""
-MASTER_ADDRESS = ""
-NARRATOR_ADDRESS = ""
+FACT_GIVER_ADDRESS = "agent1qv5u8w9dan6h6hjxe0s2rf34e6f0zz6leh8zufhpv0k5g7enrc4vw5297e7"
+GUIDE_ADDRESS = "agent1qge4q2a34xceg4pgkrrencsu8s9hwdrlczzuas594llmeuaxak09qsk73mu"
+NARRATOR_ADDRESS = "agent1qv0gczjk9nnvj57rvtfgmp3j6e9x29k0kx8rjnq6nhu65p9cpqvlc3x2pj5"
 OUPUT_ADDRESS = ""
 
 """all uagent models have a string parameter
@@ -111,7 +110,7 @@ async def Final_Guided_Action(ctx:Context, sender: str, msg: FactCheckedResponse
     try:
         
         #Create a final guide to create the Scenario
-        
+
         final_guided_response = "final response of guide"
 
         
@@ -376,7 +375,7 @@ Narrator Protocols for DnDGPT
 """
 narrator_protocol = Protocol(name="narrator_proto", version=PROTOCOL_VERSION) #for talking use message, for LLM stuff use on_query
 
-@narrator_protocol.on_message(model=Described_Narrations_Final, replies=(Narrated_Scenes, Scenes_to_Sound) )
+@narrator_protocol.on_message(model=Described_Narrations_Final, replies=Narrated_Scenes )
 async def narrate_scene(ctx: Context, sender: str, msg: Described_Narrations_Final):
     """
     Narrate the facts 
@@ -397,6 +396,11 @@ async def narrate_scene(ctx: Context, sender: str, msg: Described_Narrations_Fin
                                             "{e}. Please try again later.")))
     
 
+
+"""
+OUTPUT Protocols for DnDGPT
+TAKES FINAL Output from Narration protocol and sends it to the relevant sources
+"""
 
 
 
