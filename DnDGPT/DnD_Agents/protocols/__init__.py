@@ -17,23 +17,28 @@ OUPUT_ADDRESS = ""
 class GuidedResponses(Model):
     guided_response: str
 
+class GuidedResponses_Final(Model):
+    final_guided_response: str
+
 class FactCheckedResponses(Model):
     fact_resp: str
-
-class FactCheckedScenes(Model):
-    fact_scene: str
 
 class Described_Narrations(Model): #this is the scene
     id: int  
     scene: str  # converts the guided response to a scene for better to interactive scene
 
+class FactCheckedScenes(Model):
+    fact_scene: str
+
+
+class Described_Narrations_Final(Model): #this is the scene
+    id: int  
+    final_scene: str  #
+
 class Narrated_Scenes(Model):
     id: int  
     narration: str  # this is the narration of the scene created by the scenario builder with a narrative perspective
 
-class Described_Narrations_Final(Model): #this is the scene
-    id: int  
-    final_scene: str  # 
 
 class Error_Messages(Model):
     id: int  
@@ -94,8 +99,33 @@ async def guide_actions(ctx: Context, sender: str, msg: Input_Action):
                                             "{e}. Please try again later.")))
 
 
+"""
+FactChecked Guided Action --> Guide
+Sends the Guided Actions to the Guide, with relevant suggestions to imporve the actions
+"""
+@guide_protocol.on_message(model=FactCheckedResponses, replies=GuidedResponses_Final) 
+async def Final_Guided_Action(ctx:Context, sender: str, msg: FactCheckedResponses):
+    """
+    Give guidance to Scenario Builder
+    """
+    try:
+        
+        #Create a final guide to create the Scenario
+        
+        final_guided_response = "final response of guide"
 
-""""
+        
+        #store action in ctx or database, see which works easier for context
+
+        await ctx.send(SCENARIO_ADDRESS, GuidedResponses_Final(final_guided_response=final_guided_response)) #here send to describer scenario not back to sender
+
+    except Exception as e:
+        await ctx.send(sender, Error_Messages(error=(f"I am unable to guide the actions at this time due to"
+                                            "{e}. Please try again later.")))
+
+
+
+"""
 FactChecked Guided Actions ----> Scenario Builder
 Sends the Guided Actions to the Scenario Builder, with relevant suggestions
 """
@@ -296,7 +326,7 @@ async def ReCreateScene(ctx: Context, sender: str, msg: FactCheckedScenes):
 Scenario --> Narrator
 """
 @scenario_protocol.on_message(model=FactCheckedScenes, replies=Described_Narrations_Final) #another model to send to 
-async def ReCreateScene(ctx: Context, sender: str, msg: FactCheckedScenes):
+async def CreateFinalScene(ctx: Context, sender: str, msg: FactCheckedScenes):
     """
     Create an interactive This is Final Scene node before sending to Narrator
     """
@@ -346,8 +376,8 @@ Narrator Protocols for DnDGPT
 """
 narrator_protocol = Protocol(name="narrator_proto", version=PROTOCOL_VERSION) #for talking use message, for LLM stuff use on_query
 
-@narrator_protocol.on_message(model=Described_Narrations_Final, replies=Narrated_Scenes)
-async def narrate_facts(ctx: Context, sender: str, msg: Described_Narrations_Final):
+@narrator_protocol.on_message(model=Described_Narrations_Final, replies=(Narrated_Scenes, Scenes_to_Sound) )
+async def narrate_scene(ctx: Context, sender: str, msg: Described_Narrations_Final):
     """
     Narrate the facts 
     """
@@ -366,7 +396,6 @@ async def narrate_facts(ctx: Context, sender: str, msg: Described_Narrations_Fin
         await ctx.send(sender, Error_Messages(error=(f"I am unable to narrate the facts at this time due to"
                                             "{e}. Please try again later.")))
     
-
 
 
 
@@ -409,4 +438,3 @@ DungeonMaster = Bureau() # DM Bureau communicates with characters Bureau
 # DungeonMaster.add_agents(CharacterAgent)
 # DungeonMaster.add_agents(RulesAgent)
 # DungeonMaster.add_agents(VFXAgent)
-
