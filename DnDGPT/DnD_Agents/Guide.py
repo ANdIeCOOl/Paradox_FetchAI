@@ -11,7 +11,9 @@ print(f"Guide address: {guide.address}")
 fund_agent_if_low(guide.wallet.address())
 
 from protocols import guide_protocol
-guide.include(guide_protocol)
+#guide.include(guide_protocol)
+#print(guide_protocol.Input_Action.model_json_schema)
 
-if __name__ == "__main__":
-    guide.run()
+# if __name__ == "__main__":
+#     guide.run() #Runs the guide agent
+

@@ -2,6 +2,7 @@ from uagents import Model #keep these as verbs like doing stuff
 from uagents import Protocol, Context, Bureau
 import asyncio
 from .models import Narrations, Facts, Scenes, Sounds, Errors
+from uagents.crypto import Identity
 
 """AGENT ADDRESSES"""
 SCENARIO_ADDRESS = "agent1q03cseuyk38flt9gmzydteahvf8c5afl4s8rxsse8p9k9lh335evcs6pm3z"
@@ -48,15 +49,17 @@ class Scenes_to_Sound(Model):
     sound: str  #This give SFX to the scene for better immersion develop if time permits
 
 class Input_Action(Model):
-    id: int  
+    id: int   
     action: str  #This is the Actions that occur in the scene comes as input
 
 class Output_Action(Model):
     id: int  
     action: str  #This is the Actions that occur in the environment goes as output
     
-PROTOCOL_VERSION="6.9"
-
+PROTOCOL_VERSION="1.0"
+"""
+Output_Action Input_Action Scenes_to_Sound GuidedResponses GuidedResponses_Final
+"""
 
 
 
@@ -84,6 +87,7 @@ async def guide_actions(ctx: Context, sender: str, msg: Input_Action):
     """
     Guide the actions 
     """
+
     try:
         #create a DM quest guide and the check actions the guide and also update quest guide if necessary
         guided_actions = "This is response of environment to inputed actions"
